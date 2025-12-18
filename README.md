@@ -70,7 +70,12 @@ adk-data-analytics-ge/
     source .venv/bin/activate
     ```
 
-4.  **Configure the project:**
+4.  **Update IAM policies:**
+    ```bash
+    ./scripts/enable_services.sh
+    ```
+
+5.  **Configure the project:**
    * Edit `src/agents/config_project.py`:
      * Set `PROJECT_ID` to your GCP project
      * Configure CA agent IDs
@@ -81,7 +86,7 @@ adk-data-analytics-ge/
      * `src/data/patient_records/bigquery_data_context.json`
      * Similar for medication inventory and pbm_claims
 
-5. **Create CA DataAgents (One-time Setup):**
+6. **Create CA DataAgents (One-time Setup):**
 
    ```bash
    python -m src.ca_api_helper

@@ -144,94 +144,7 @@ def create_bigquery_ca_data_agent(data_agent_id: str) -> geminidataanalytics.Dat
     response = operation.result()
     logger.info(f"Data Analytics Agent created with name: {response.name}")
     return response
-'''
-def create_looker_ca_data_agent(data_agent_id: str) -> geminidataanalytics.DataAgent:
-    """Creates a Data Analytics Agent for a Looker data source.
 
-    Args:
-        data_agent_id: The desired ID for the new Data Agent.
-
-    Returns:
-        A DataAgent object.
-    """
-    # ------------------
-    # 1. LOOKER CONFIGURATION
-    # Replace these placeholder values with your actual Looker details.
-    # ------------------
-    looker_instance_uri = config_project.LOOKER_INSTANCE_URI # e.g., "https://your-looker-instance.looker.com"
-    lookml_model = config_project.LOOKML_MODEL # The name of your Looker model
-    explore_to_use = config_project.LOOKER_EXPLORE_CLAIMS # The name of the Explore the agent will query
-
-    logger.info("Creating Data Analytics Agent for Looker...")
-    data_agent_client = geminidataanalytics.DataAgentServiceClient()
-    logger.info("DataAgentServiceClient created.")
-
-    # ------------------
-    # 2. LOAD YAML SYSTEM INSTRUCTION
-    # This loads the entire YAML content you created into a single string.
-    # ------------------
-    script_dir = Path(__file__).parent
-    # Update the path to point to your new PBM Looker YAML file
-    file_path = script_dir.parent / 'config' / 'looker_data_context.yaml'
-    with open(file_path) as file:
-        config = yaml.safe_load(file)
-    system_instruction_string = yaml.dump(config)
-    logger.info("Loaded Looker system instruction from YAML.")
-
-    # ------------------
-    # 3. DEFINE LOOKER DATASOURCE REFERENCE
-    # This section replaces the BigQuery table reference logic.
-    # ------------------
-    looker_explore_reference = geminidataanalytics.LookerExploreReference(
-        looker_instance_uri=looker_instance_uri,
-        lookml_model=lookml_model,
-        explore=explore_to_use
-    )
-
-    datasource_references = geminidataanalytics.DatasourceReferences(
-        looker=geminidataanalytics.LookerExploreReferences(
-            explore_references=[looker_explore_reference]
-        )
-    )
-    logger.info("Created Looker datasource references.")
-
-    # ------------------
-    # 4. CONSTRUCT AND CREATE THE AGENT
-    # This part is similar, but uses the Looker datasource_references.
-    # ------------------
-    published_context = geminidataanalytics.Context(
-        system_instruction=system_instruction_string,
-        datasource_references=datasource_references,
-        options=geminidataanalytics.ConversationOptions(
-            analysis=geminidataanalytics.AnalysisOptions(
-                python=geminidataanalytics.AnalysisOptions.Python(
-                    enabled=True
-                )
-            )
-        )
-    )
-    logger.info("Created published context.")
-
-    data_agent = geminidataanalytics.DataAgent(
-        data_analytics_agent=geminidataanalytics.DataAnalyticsAgent(
-            published_context=published_context
-        )
-    )
-    data_agent.name = f"projects/{config_project.PROJECT_ID}/locations/global/dataAgents/{data_agent_id}"
-    logger.info("Created data agent object.")
-
-    request = geminidataanalytics.CreateDataAgentRequest(
-        parent=f"projects/{config_project.PROJECT_ID}/locations/global",
-        data_agent_id=data_agent_id,
-        data_agent=data_agent,
-    )
-    logger.info("Creating data agent request.")
-
-    operation = data_agent_client.create_data_agent(request=request)
-    logger.info("Waiting for Data Analytics Agent creation to complete...")
-    response = operation.result()
-    logger.info(f"Data Analytics Agent for Looker created with name: {response.name}")
-    return response'''
 
 def get_data_agent(data_agent_id: str) -> geminidataanalytics.DataAgent:
     """Gets a Data Analytics Agent.
@@ -352,23 +265,29 @@ def update_data_agent(
 
 
 if __name__ == "__main__":
-    #bigquery_data_agent_id = config_project.PATIENT_ANALYTICS_AGENT_ID
-    #bigquery_data_agent_id = config_project.MEDICATION_INVENTORY_AGENT_ID
-    bigquery_data_agent_id = config_project.PBM_CLAIMS_AGENT_ID
-    # looker_data_agent_id = config_project.LOOKER_PBM_ANALYTICS_AGENT_ID
+    
+    bigquery_data_agent_id = config_project.PATIENT_ANALYTICS_AGENT_ID
 
     agent = create_bigquery_ca_data_agent(bigquery_data_agent_id)
     logger.info(f"Created BigQuery Data Agent: {agent.name}")
 
-    # agent = create_looker_ca_data_agent(looker_data_agent_id)
-    # print(f"Created Looker Data Agent: {agent.name}")
+    bigquery_data_agent_id = config_project.MEDICATION_INVENTORY_AGENT_ID
+
+    agent = create_bigquery_ca_data_agent(bigquery_data_agent_id)
+    logger.info(f"Created BigQuery Data Agent: {agent.name}")
+
+    bigquery_data_agent_id = config_project.PBM_CLAIMS_AGENT_ID
+
+    agent = create_bigquery_ca_data_agent(bigquery_data_agent_id)
+    logger.info(f"Created BigQuery Data Agent: {agent.name}")
+
 
     #agent = get_data_agent(bigquery_data_agent_id)
     #print(f"Retrieved Data Agent: {agent.name}")
 
     list_data_agents()
 
-    # get_data_agent(looker_data_agent_id)
+    #get_data_agent(looker_data_agent_id)
 
     #delete_data_agent("patient_encounters-agent-6")
 
