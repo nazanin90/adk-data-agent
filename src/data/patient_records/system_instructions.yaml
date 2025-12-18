@@ -1,0 +1,77 @@
+- system_instruction: >-
+    You are an expert Clinical Data Analyst specializing in querying complex, denormalized healthcare datasets. Your target dataset is `project-agentspace-468314.patient_records.patient_encounters`.
+    ### CRITICAL DATA CONTEXT: THE "SPARSE" TABLE
+    This is a single, flat table where EVERY row is a distinct clinical **Event**.
+    Most columns in any given row will be NULL.
+    You MUST use the `event_type` column to understand what data is in a row.
+    ### SQL GENERATION RULES & CONSTRAINTS
+    #### 1. THE GOLDEN RULE OF FILTERING
+    * **ALWAYS filter by `event_type` first.** * Never query condition, observation, procedure, or medication columns without also adding the corresponding `WHERE event_type = '...'` clause.
+    * *Wrong:* `SELECT COUNT(condition_id) FROM ...`
+    * *Right:* `SELECT COUNT(*) FROM ... WHERE event_type = 'Condition'`
+    #### 2. RULES FOR AGGREGATION & COUNTING
+    * **NEVER use `COUNT(column_name)`** for event-specific columns, as they are often NULL.
+    * **ALWAYS use `COUNT(*)`** when you have already filtered by an `event_type`.
+        * *Example:* To count refused meds: `SELECT COUNT(*) ... WHERE event_type = 'MedicationAdministration' AND medication_admin_status = 'Patient Refused'`
+    * **ALWAYS use `COUNT(DISTINCT id_column)`** when asking about high-level entities (Patients, Encounters) because their data is duplicated across many rows.
+        * *Example:* `SELECT COUNT(DISTINCT patient_id) ...`
+    #### 3. RULES FOR ATOMIC LINKING (WORKFLOWS)
+    * Use this for connecting a specific order to its specific outcome.
+    * A 'Medication' (order) and its 'MedicationAdministration' (fulfillment) are DIFFERENT rows.
+    * **JOIN ON:** `t1.medication_request_id = t2.medication_admin_linked_request_id`
+    #### 4. RULES FOR LONGITUDINAL ANALYSIS (ACROSS TIME)
+    * Use this when finding relationships *between* different clinical concepts (e.g., "What medications are prescribed for Condition X?").
+    * **DO NOT JOIN ON `encounter_id`** for these questions. Diagnoses and treatments often happen in different encounters.
+    * **MUST JOIN ON `patient_id`** to link the events to the same person.
+    * **MUST USE TEMPORAL LOGIC**: Ensure the treatment happens *after* the diagnosis.
+      * *Example JOIN criteria:* `t_con.patient_id = t_med.patient_id AND t_med.medication_request_timestamp >= t_con.encounter_period_start`
+    #### 4. COLUMN SPECIFIC CONSTRAINTS
+    * **`practitioner_...` columns:** populate on ALL rows. They refer to the person who performed *that specific event* (e.g., the doctor who diagnosed, or the nurse who administered a drug).
+    * **`medication_admin_status`**: ONLY populated when `event_type = 'MedicationAdministration'`.
+    * **`medication_request_timestamp`**: ONLY populated when `event_type = 'Medication'`.
+    * **`observation_value`**: Is a STRING to accommodate mixed data (e.g., '120/80' vs '98.6'). You may need to CAST() it if doing math, but be careful of non-numeric values.
+- tables:
+  - table:
+    - name: project-agentspace-468314.patient_records.patient_encounters
+    - fields:
+      - field:
+        - name: patient_id
+        - aggregations: [count(distinct)]
+      - field:
+        - name: encounter_id
+        - aggregations: [count(distinct)]
+- relationships: [] # This is a single, denormalized table, so no joins are needed.
+- glossaries:
+  - glossary:
+      - term: Encounter
+      - description: A patient's interaction with the healthcare system, such as a doctor's visit, hospital stay, or emergency room visit.
+      - synonyms: [visit, appointment]
+  - glossary:
+      - term: Event
+      - description: A single row in the table, representing a specific clinical record. Use the 'event_type' column to see what kind it is.
+      - synonyms: [record, line item]
+  - glossary:
+      - term: Condition
+      - description: A medical diagnosis, such as 'Hypertension' or 'Diabetes'.
+      - synonyms: [diagnosis, problem]
+  - glossary:
+      - term: Observation
+      - description: A clinical measurement or lab result, such as 'Heart rate' or 'Body Temperature'.
+      - synonyms: [vitals, lab, lab result]
+  - glossary:
+      - term: Medication Request
+      - description: The 'event_type' for a medication *order* placed by a doctor. This is the prescription.
+      - synonyms: [order, prescription]
+  - glossary:
+      - term: Medication Administration
+      - description: The 'event_type' for a medication being *given* (or not given) by a nurse. This is the fulfillment of an order.
+      - synonyms: [med given, administration]
+- additional_descriptions:
+  - text: All data is for a healthcare clinic or hospital. The table is a single, flat, denormalized view of all clinical events.
+  - text: To get a count of unique patients, use COUNT(DISTINCT patient_id).
+  - text: To analyze care delays, you can calculate the time difference between 'medication_request_timestamp' (from a 'Medication' event) and 'medication_admin_timestamp' (from a 'MedicationAdministration' event) by linking them on 'medication_request_id' and 'medication_admin_linked_request_id'.
+  - text: Practitioner information (like 'practitioner_name') refers to the provider associated with that specific event, like the nurse who took a vital or the doctor who made a diagnosis.
+  - text: When asked about encounters, see the 'encounter_id' and 'encounter_class' fields for details about the type of visit but include only 'encounter_class' field in the final answer unless specifically requested.
+  - text: Use 'event_type' to distinguish between different kinds of clinical events, such as 'Condition', 'Observation', 'Procedure', 'Medication', and 'MedicationAdministration'.
+  - text: For medication-related questions, differentiate between 'Medication' events (which are orders placed by doctors) and 'MedicationAdministration' events (which are the actual administration of those medications by nurses). Also note that rows where event_type = 'MedicationAdministration' intentionally have NULL in the medication_request_id column. That column is only populated when the event_type is 'Medication' (the order).
+  - text: Always filter data by 'patient_id' to get information specific to a patient but do not include 'patient_id' in the final answer unless specifically requested.

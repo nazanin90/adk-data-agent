@@ -1,0 +1,176 @@
+{
+  "tables": [
+    {
+      "project_id": "project-agentspace-468314",
+      "dataset_id": "patient_records",
+      "table_id": "patient_encounters",
+      "description": "Contains a comprehensive log of patient clinical events. Each row is a single event, such as a diagnosis, lab result, procedure, or medication, linked to a specific patient and encounter.",
+      "synonyms": [
+        "clinical event log",
+        "patient clinical history",
+        "encounter records",
+        "all patient activity"
+      ],
+      "tags": [
+        "analytics",
+        "patient",
+        "events",
+        "healthcare",
+        "encounters",
+        "clinical",
+        "diagnoses",
+        "medications",
+        "vitals",
+        "procedures"
+      ],
+      "fields": [
+        {
+          "name": "patient_id",
+          "description": "Unique identifier for the patient. Must be a non-null string starting with 'p-'."
+        },
+        {
+          "name": "patient_name",
+          "description": "Patient's full name. Cannot be null."
+        },
+        {
+          "name": "patient_gender",
+          "description": "Patient's gender. Allowed values: 'male', 'female', 'other'."
+        },
+        {
+          "name": "patient_birth_date",
+          "description": "Patient's date of birth. Must be a valid date in the past."
+        },
+        {
+          "name": "patient_address",
+          "description": "Patient's full address (used for geo-analytics). Should not be null."
+        },
+        {
+          "name": "encounter_class",
+          "description": "Type of encounter. Allowed values: 'ambulatory', 'inpatient', 'emergency'."
+        },
+        {
+          "name": "encounter_period_start",
+          "description": "The starting date and time of the encounter. Must be before or equal to encounter_period_end."
+        },
+        {
+          "name": "encounter_period_end",
+          "description": "The ending date and time of the encounter. Must be after or equal to encounter_period_start."
+        },
+        {
+          "name": "practitioner_id",
+          "description": "Identifier for the practitioner associated with the event. Must start with 'd-' for doctors or 'n-' for nurses."
+        },
+        {
+          "name": "practitioner_name",
+          "description": "Name of the practitioner. Cannot be null."
+        },
+        {
+          "name": "practitioner_role",
+          "description": "The practitioner's role. Allowed values: 'Doctor', 'Nurse'."
+        },
+        {
+          "name": "practitioner_specialty",
+          "description": "The practitioner's medical specialty. Examples: 'Cardiology', 'RN', 'Pediatrics'."
+        },
+        {
+          "name": "event_type",
+          "description": "The category of the clinical event. Allowed values: 'Condition', 'Observation', 'Procedure', 'Medication', 'MedicationAdministration'."
+        },
+        {
+          "name": "condition_id",
+          "description": "Identifier for a diagnosed condition. Only available when event_type is 'Condition'."
+        },
+        {
+          "name": "condition_display_name",
+          "description": "The common name of the medical condition. Only available when event_type is 'Condition'."
+        },
+        {
+          "name": "condition_code",
+          "description": "Standardized medical code (e.g., ICD-10) for the condition. Only available when event_type is 'Condition'."
+        },
+        {
+          "name": "observation_id",
+          "description": "Identifier for a clinical observation. Only available when event_type is 'Observation'."
+        },
+        {
+          "name": "observation_display_name",
+          "description": "The name of the observation. Only available when event_type is 'Observation'."
+        },
+        {
+          "name": "observation_value",
+          "description": "The result of the observation. Only available when event_type is 'Observation'."
+        },
+        {
+          "name": "observation_unit",
+          "description": "The unit of measurement for the observation. Only available when event_type is 'Observation'."
+        },
+        {
+          "name": "procedure_id",
+          "description": "Identifier for a medical procedure. Only available when event_type is 'Procedure'."
+        },
+        {
+          "name": "procedure_display_name",
+          "description": "The common name of the medical procedure. Only available when event_type is 'Procedure'."
+        },
+        {
+          "name": "procedure_code",
+          "description": "Standardized medical code (e.g., CPT) for the procedure. Only available when event_type is 'Procedure'."
+        },
+        {
+          "name": "medication_request_id",
+          "description": "Identifier for a medication order. Only available when event_type is 'Medication'."
+        },
+        {
+          "name": "medication_display_name",
+          "description": "The name of the medication. Only available when event_type is 'Medication'."
+        },
+        {
+          "name": "medication_dosage_instruction",
+          "description": "Instructions on how to take the medication. Only available when event_type is 'Medication'."
+        },
+        {
+          "name": "medication_request_timestamp",
+          "description": "The date and time the medication was ordered. Only available when event_type is 'Medication'."
+        },
+        {
+          "name": "medication_admin_status",
+          "description": "Outcome of medication administration. Allowed values: 'Given', 'Held', 'Patient Refused'. Only available when event_type is 'MedicationAdministration'."
+        },
+        {
+          "name": "medication_admin_timestamp",
+          "description": "Date and time of administration. Only available when event_type is 'MedicationAdministration'."
+        },
+        {
+          "name": "medication_admin_notes",
+          "description": "Notes from the nurse. Only available when event_type is 'MedicationAdministration'."
+        },
+        {
+          "name": "medication_admin_linked_request_id",
+          "description": "Links administration to the original order. Only available when event_type is 'MedicationAdministration', must match a valid medication_request_id."
+        }
+      ]
+    }
+  ],
+  "example_queries": [
+    {
+      "natural_language_question": "How many unique patients are in the dataset?",
+      "sql_query": "SELECT COUNT(DISTINCT patient_id) FROM `patient_records.patient_records.patient_encounters`"
+    },
+    {
+      "natural_language_question": "What is the breakdown of all clinical events by type?",
+      "sql_query": "SELECT event_type, COUNT(*) AS event_count FROM `patient_records.patient_records.patient_encounters` GROUP BY event_type ORDER BY event_count DESC"
+    },
+    {
+      "natural_language_question": "Which practitioner has logged the most events?",
+      "sql_query": "SELECT practitioner_name, COUNT(*) AS event_count FROM `patient_records.patient_records.patient_encounters` WHERE practitioner_name IS NOT NULL GROUP BY practitioner_name ORDER BY event_count DESC LIMIT 10"
+    },
+    {
+      "natural_language_question": "How many patients were diagnosed with 'Hypertension'?",
+      "sql_query": "SELECT COUNT(DISTINCT patient_id) FROM `patient_records.patient_records.patient_encounters` WHERE event_type = 'Condition' AND condition_display_name = 'Hypertension'"
+    },
+    {
+      "natural_language_question": "What is the most common medication prescribed?",
+      "sql_query": "SELECT medication_display_name, COUNT(*) AS prescription_count FROM `patient_records.patient_records.patient_encounters` WHERE event_type = 'Medication' GROUP BY medication_display_name ORDER BY prescription_count DESC LIMIT 5"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "tables": [
+    {
+      "project_id": "project-agentspace-468314",
+      "dataset_id": "patient_records",
+      "table_id": "pbm_claims",
+      "description": "Financial table tracking insurance claims for prescription medications. Used to analyze approval rates, copay costs, and insurance plan coverage.",
+      "synonyms": [
+        "claims history",
+        "insurance adjudication",
+        "billing records",
+        "prescription coverage"
+      ],
+      "tags": [
+        "finance",
+        "insurance",
+        "claims",
+        "billing",
+        "pbm",
+        "approvals"
+      ],
+      "fields": [
+        {
+          "name": "claim_id",
+          "description": "Unique identifier for the insurance claim transaction."
+        },
+        {
+          "name": "patient_id",
+          "description": "Unique identifier for the patient (links to patient_admissions)."
+        },
+        {
+          "name": "medication_name",
+          "description": "Name of the drug being claimed. Matches 'medication_inventory'."
+        },
+        {
+          "name": "insurance_plan",
+          "description": "The specific insurance plan covering the patient (e.g., 'BlueCross Gold', 'Aetna Silver')."
+        },
+        {
+          "name": "approval_status",
+          "description": "Outcome of the claim. Values: 'Approved', 'Rejected', 'Pending'."
+        },
+        {
+          "name": "copay_amount",
+          "description": "The dollar amount the patient is required to pay out-of-pocket."
+        },
+        {
+          "name": "rejection_reason",
+          "description": "If rejected, the reason code (e.g., 'Prior Auth Required', 'Not Covered'). Null if approved."
+        },
+        {
+          "name": "claim_date",
+          "description": "Timestamp of when the claim was processed."
+        }
+      ]
+    }
+  ],
+  "example_queries": [
+    {
+      "natural_language_question": "What is the average copay for Atorvastatin on the BlueCross Gold plan?",
+      "sql_query": "SELECT AVG(copay_amount) FROM `patient_records.pbm_claims` WHERE medication_name = 'Atorvastatin' AND insurance_plan = 'BlueCross Gold' AND approval_status = 'Approved'"
+    },
+    {
+      "natural_language_question": "List all rejected claims for Metformin in the last month.",
+      "sql_query": "SELECT claim_id, insurance_plan, rejection_reason FROM `patient_records.pbm_claims` WHERE medication_name = 'Metformin' AND approval_status = 'Rejected'"
+    },
+    {
+      "natural_language_question": "Which insurance plan has the highest approval rate for Lisinopril?",
+      "sql_query": "SELECT insurance_plan, COUNT(*) as approved_count FROM `patient_records.pbm_claims` WHERE medication_name = 'Lisinopril' AND approval_status = 'Approved' GROUP BY insurance_plan ORDER BY approved_count DESC LIMIT 1"
+    }
+  ]
+}

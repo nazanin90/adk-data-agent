@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adk-data-analytics"
+version = "0.1.0"
+description = "An Agentic Data Analytics project using React, FastAPI, and Google ADK."
+readme = "README.md"
+requires-python = ">=3.12" # Keeping Python 3.12 as per original
+license = {text = "Apache-2.0"} # Changed to a common open-source license
+
+# Core dependencies for the boilerplate
+dependencies = [
+    "google-adk[a2a]", # Google Agent Development Kit with A2A support
+    "google-cloud-aiplatform[agent_engines,adk]",
+    "fastapi", # For the FastAPI backend
+    "uvicorn", # ASGI server for FastAPI
+    "httpx", # For making async HTTP requests
+    "aiofiles", # For serving static files
+    "llama-index",
+    "python-dotenv", # For loading environment variables
+    "numpy", # For numerical operations
+    "google-cloud-logging", # For Google Cloud Logging
+    "google-cloud-geminidataanalytics", # For Google Gemini Data Analytics
+    "google-cloud-secret-manager", # For accessing secrets
+    "a2a-sdk", # A2A SDK for agent-to-agent communication
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff", # Linter/formatter
+    "copier", # For project templating
+]
+
+# Recommended Ruff configuration
+[tool.ruff]
+# Same as Black.
+line-length = 200
+# Assume Python 3.12+.
+target-version = "py312" # Updated target Python version for Ruff
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`), pycodestyle (`E`, `W`), isort (`I`), pyupgrade (`UP`) and others.
+# See https://docs.astral.sh/ruff/rules/ for all rules.
+select = ["E", "F", "W", "C90", "I", "N", "UP", "B", "A", "SIM", "T20", "RUF"]
+ignore = []
+
+# Allow unused variables when underscore-prefixed.
+# ignore = ["F841"]
+
+# Allow autofix for all enabled rules (when `--fix`) is used.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+
+
+[tool.setuptools.packages.find]
+where = ["src"]

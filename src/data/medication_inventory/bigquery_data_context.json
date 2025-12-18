@@ -1,0 +1,65 @@
+{
+  "tables": [
+    {
+      "project_id": "project-agentspace-468314",
+      "dataset_id": "patient_records",
+      "table_id": "medication_inventory",
+      "description": "Operational table tracking current medication stock levels at retail pharmacy locations. Used to find where a patient can fill a prescription.",
+      "synonyms": [
+        "drug stock",
+        "pharmacy supply",
+        "medication availability",
+        "retail inventory"
+      ],
+      "tags": [
+        "operations",
+        "pharmacy",
+        "inventory",
+        "logistics",
+        "retail",
+        "medications",
+        "stock"
+      ],
+      "fields": [
+        {
+          "name": "pharmacy_id",
+          "description": "Unique identifier for the specific pharmacy location."
+        },
+        {
+          "name": "pharmacy_name",
+          "description": "Commercial name of the pharmacy chain (e.g., 'CVS', 'Walgreens')."
+        },
+        {
+          "name": "zip_code",
+          "description": "5-digit zip code of the pharmacy location. Use this to find nearby pharmacies."
+        },
+        {
+          "name": "medication_name",
+          "description": "Name of the medication. Matches the 'medication_display_name' from clinical records."
+        },
+        {
+          "name": "stock_level",
+          "description": "Current number of units in stock. A value of 0 means 'Out of Stock'."
+        },
+        {
+          "name": "last_updated",
+          "description": "Timestamp of when this stock level was last verified."
+        }
+      ]
+    }
+  ],
+  "example_queries": [
+    {
+      "natural_language_question": "Which pharmacies in 10001 have Lisinopril in stock?",
+      "sql_query": "SELECT pharmacy_name, stock_level FROM `pharmacy_ops.pharmacy_ops.inventory` WHERE zip_code = '10001' AND medication_name = 'Lisinopril' AND stock_level > 0"
+    },
+    {
+      "natural_language_question": "Is Atorvastatin available at any CVS in zip code 10002?",
+      "sql_query": "SELECT pharmacy_id, stock_level FROM `pharmacy_ops.pharmacy_ops.inventory` WHERE zip_code = '10002' AND pharmacy_name LIKE '%CVS%' AND medication_name = 'Atorvastatin'"
+    },
+    {
+      "natural_language_question": "What is the total stock of Metformin across all pharmacies in 10003?",
+      "sql_query": "SELECT SUM(stock_level) FROM `pharmacy_ops.pharmacy_ops.inventory` WHERE zip_code = '10003' AND medication_name = 'Metformin'"
+    }
+  ]
+}
