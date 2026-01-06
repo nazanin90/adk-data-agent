@@ -16,6 +16,13 @@ This project is a **multi-agent healthcare data analytics system** built with th
 * **Conversational Analytics:** Converts natural language questions into SQL queries to be executed on BigQuery.
 * **Deployable to Agent Engine:** Includes a notebook for deploying the agent to Google Cloud's Agent Engine.
 
+## Architecture Diagram
+
+The following diagram illustrates the complete flow from user query to response, showing all layers and their interactions:
+
+![Architecture Diagram](docs/ca_data_analytics_architecture_simple.png)
+
+
 ## Project Structure
 
 ```
