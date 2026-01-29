@@ -115,13 +115,15 @@ This will start a local web server where you can interact with your agent.
 ## Deploying to Agent Engine
 
 The `deploy.ipynb` notebook contains the code and instructions to deploy this agent to Google Cloud's Agent Engine.
+
 Please change the service_account field to your own GCP project's service account.
 ```python
-    remote_app = agent_engines.create(
-    ...
-    service_account="XXXXXXXX-compute@developer.gserviceaccount.com",
-    ...)
+remote_app = agent_engines.create(
+...
+service_account="XXXXXXXX-compute@developer.gserviceaccount.com",
+...)
 ```
+
 Then run the notebook to deploy your agent.
 
 Then, follow [this code](https://github.com/sokart/adk-agentengine-agentspace/blob/main/expose_to_agentspace.sh) to register the deployed agent in your Gemini Enterprise app.
